@@ -776,7 +776,6 @@ public class GPUProcessor {
                                             rawDistance = newDistance;
                                             newDistance /= pixelsFar;
                                             // Account for smear by movement
-                                            Log.d(Config.TAG, "Movement: " + movement);
                                             newDistance = newDistance / (float)(1.0 + movement);
                                             newDistance = 1f - newDistance;
                                             Log.d(Config.TAG, "Distance raw: " + newDistance);
