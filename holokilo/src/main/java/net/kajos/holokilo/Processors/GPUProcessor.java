@@ -763,7 +763,7 @@ public class GPUProcessor {
                                 for (int k = 0; k < Config.MAX_BLOBS; k++) {
                                     if (resData[k][0] == resData[k][0]) {
                                         // Adjust filters for tracker loss/gain
-                                        synchronized (distanceLPFilter) {
+                                        synchronized (vecXLPFilter) {
                                             if (vecXLPFilter[k].alpha < Config.XY_LOWPASS) {
                                                 vecXLPFilter[k].alpha += Config.GAIN_ADJUST_RATE * Config.XY_LOWPASS;
                                                 vecXLPFilter[k].alpha = Math.min(Config.XY_LOWPASS, vecXLPFilter[k].alpha);
@@ -771,10 +771,6 @@ public class GPUProcessor {
                                             if (vecYLPFilter[k].alpha < Config.XY_LOWPASS) {
                                                 vecYLPFilter[k].alpha += Config.GAIN_ADJUST_RATE * Config.XY_LOWPASS;
                                                 vecYLPFilter[k].alpha = Math.min(Config.XY_LOWPASS, vecYLPFilter[k].alpha);
-                                            }
-                                            if (distanceLPFilter[k].alpha < Config.DISTANCE_LOWPASS) {
-                                                distanceLPFilter[k].alpha += Config.GAIN_ADJUST_RATE * Config.DISTANCE_LOWPASS;
-                                                distanceLPFilter[k].alpha = Math.min(Config.DISTANCE_LOWPASS, distanceLPFilter[k].alpha);
                                             }
                                             trackerLoss[k] = false;
                                         }
@@ -790,10 +786,11 @@ public class GPUProcessor {
                                         if (!flashOff && stableFrame) {
                                             float newDistance = resData[k][2];
                                             rawDistance = newDistance;
-                                            newDistance /= pixelsFar;
 
                                             // Account for distance and smear by movement
-                                            distanceLPFilter[k].setExtraMultiplier(Math.max(0f, (1f - (float)movement) * Math.min(1f, newDistance * Config.DISTANCE_ADJUSTER)));
+                                            distanceLPFilter[k].setExtraMultiplier(Math.max(0f, (1f - (float)movement) * Math.min(1f, newDistance / subWidth / subHeight * Config.DISTANCE_ADJUSTER)));
+
+                                            newDistance /= pixelsFar;
 
                                             newDistance = 1f - newDistance;
                                             Log.d(Config.TAG, "Distance raw: " + newDistance);
@@ -841,7 +838,7 @@ public class GPUProcessor {
                                         foundFbMatrix[k].set(saveMatrix);
                                         updateMatrix = true;
                                     } else {
-                                        synchronized (distanceLPFilter) {
+                                        synchronized (vecXLPFilter) {
                                             if (vecXLPFilter[k].alpha > Config.XY_LOWPASS * Config.LOWEST) {
                                                 vecXLPFilter[k].alpha -= Config.LOSS_ADJUST_RATE * Config.XY_LOWPASS;
                                                 vecXLPFilter[k].alpha = Math.max(Config.XY_LOWPASS * Config.LOWEST, vecXLPFilter[k].alpha);
@@ -849,10 +846,6 @@ public class GPUProcessor {
                                             if (vecYLPFilter[k].alpha > Config.XY_LOWPASS * Config.LOWEST) {
                                                 vecYLPFilter[k].alpha -= Config.LOSS_ADJUST_RATE * Config.XY_LOWPASS;
                                                 vecYLPFilter[k].alpha = Math.max(Config.XY_LOWPASS * Config.LOWEST, vecYLPFilter[k].alpha);
-                                            }
-                                            if (distanceLPFilter[k].alpha > Config.DISTANCE_LOWPASS * Config.LOWEST) {
-                                                distanceLPFilter[k].alpha -= Config.LOSS_ADJUST_RATE * Config.DISTANCE_LOWPASS;
-                                                distanceLPFilter[k].alpha = Math.max(Config.DISTANCE_LOWPASS * Config.LOWEST, distanceLPFilter[k].alpha);
                                             }
                                             trackerLoss[k] = true;
                                         }

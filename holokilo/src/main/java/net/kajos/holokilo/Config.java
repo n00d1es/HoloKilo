@@ -38,7 +38,7 @@ public class Config {
     // Adjust for camera smearing of the blob with use of the gyroscope
     public static final double SMEAR_ADJUSTER = 100.0;
     // Adjust for distance
-    public static final float DISTANCE_ADJUSTER = 1.0f;
+    public static final float DISTANCE_ADJUSTER = 1000.0f;
 
     // Boundary check for bright values. If cap is fixed CAP_REF is used as boundary.
     public static final boolean CAP_FIXED = false;
