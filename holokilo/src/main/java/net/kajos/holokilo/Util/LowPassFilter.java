@@ -6,7 +6,7 @@ package net.kajos.holokilo.Util;
 public class LowPassFilter {
     private float prev = 0f;
     public float alpha;
-    public float backAlpha;
+    public float extraMultiplier = 1f;
     private boolean empty = true;
 
     public LowPassFilter(float alpha) {
@@ -23,7 +23,11 @@ public class LowPassFilter {
     }
 
     public void setAlpha(float alpha) {
-        this.alpha = this.backAlpha = alpha;
+        this.alpha = alpha;
+    }
+
+    public void setExtraMultiplier(float alpha) {
+        this.extraMultiplier = alpha;
     }
 
     public float get(float value) {
@@ -35,7 +39,7 @@ public class LowPassFilter {
             prev = value;
             return value;
         } else {
-            prev = get(prev, value);
+            prev = get(prev, value, alpha);
             return prev;
         }
     }
@@ -48,7 +52,21 @@ public class LowPassFilter {
         empty = true;
     }
 
-    private float get(float prev, float value) {
-        return prev + alpha * (value - prev);
+    private float get(float prev, float value, float overrideAlpha) {
+        return prev + overrideAlpha * extraMultiplier * (value - prev);
+    }
+
+    public float get(float value, float overrideAlpha) {
+        if (value != value)
+            return get();
+
+        if (empty) {
+            empty = false;
+            prev = value;
+            return value;
+        } else {
+            prev = get(prev, value, overrideAlpha);
+            return prev;
+        }
     }
 }

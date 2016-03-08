@@ -762,6 +762,22 @@ public class GPUProcessor {
                             if (resData != null) {
                                 for (int k = 0; k < Config.MAX_BLOBS; k++) {
                                     if (resData[k][0] == resData[k][0]) {
+                                        // Adjust filters for tracker loss/gain
+                                        synchronized (distanceLPFilter) {
+                                            if (vecXLPFilter[k].alpha < Config.XY_LOWPASS) {
+                                                vecXLPFilter[k].alpha += Config.GAIN_ADJUST_RATE * Config.XY_LOWPASS;
+                                                vecXLPFilter[k].alpha = Math.min(Config.XY_LOWPASS, vecXLPFilter[k].alpha);
+                                            }
+                                            if (vecYLPFilter[k].alpha < Config.XY_LOWPASS) {
+                                                vecYLPFilter[k].alpha += Config.GAIN_ADJUST_RATE * Config.XY_LOWPASS;
+                                                vecYLPFilter[k].alpha = Math.min(Config.XY_LOWPASS, vecYLPFilter[k].alpha);
+                                            }
+                                            if (distanceLPFilter[k].alpha < Config.DISTANCE_LOWPASS) {
+                                                distanceLPFilter[k].alpha += Config.GAIN_ADJUST_RATE * Config.DISTANCE_LOWPASS;
+                                                distanceLPFilter[k].alpha = Math.min(Config.DISTANCE_LOWPASS, distanceLPFilter[k].alpha);
+                                            }
+                                            trackerLoss[k] = false;
+                                        }
 
                                         float x = resData[k][0] * (float) screenWidth / (float) subWidth;
                                         if (Config.FLIP_X)
@@ -775,8 +791,10 @@ public class GPUProcessor {
                                             float newDistance = resData[k][2];
                                             rawDistance = newDistance;
                                             newDistance /= pixelsFar;
-                                            // Account for smear by movement
-                                            newDistance = newDistance / (float)(1.0 + movement);
+
+                                            // Account for distance and smear by movement
+                                            distanceLPFilter[k].setExtraMultiplier(Math.max(0f, (1f - (float)movement) * Math.min(1f, newDistance * Config.DISTANCE_ADJUSTER)));
+
                                             newDistance = 1f - newDistance;
                                             Log.d(Config.TAG, "Distance raw: " + newDistance);
                                             newDistance = Math.max(0.001f, Math.min(1f, newDistance));
@@ -822,63 +840,47 @@ public class GPUProcessor {
 
                                         foundFbMatrix[k].set(saveMatrix);
                                         updateMatrix = true;
-
-                                        if (trackerLoss[k]) {
-                                            vecXLPFilter[k].alpha = vecXLPFilter[k].backAlpha;
-                                            vecYLPFilter[k].alpha = vecYLPFilter[k].backAlpha;
-                                            distanceLPFilter[k].alpha = distanceLPFilter[k].backAlpha;
-                                        }
-                                        // Adjust filters for tracker loss/gain
-                                        if (vecXLPFilter[k].alpha < Config.XY_LOWPASS) {
-                                            vecXLPFilter[k].alpha += Config.GAIN_ADJUST_RATE * Config.XY_LOWPASS;
-                                        }
-                                        if (vecYLPFilter[k].alpha < Config.XY_LOWPASS) {
-                                            vecYLPFilter[k].alpha += Config.GAIN_ADJUST_RATE * Config.XY_LOWPASS;
-                                        }
-                                        if (distanceLPFilter[k].alpha < Config.DISTANCE_LOWPASS) {
-                                            distanceLPFilter[k].alpha += Config.GAIN_ADJUST_RATE * Config.DISTANCE_LOWPASS;
-                                        }
-                                        trackerLoss[k] = false;
-                                    } else if (Config.DO_GYRO_CORRECTION) {
-                                        synchronized (GPUProcessor.this) {
-                                            Matrix3x3 diffFoundGyro = new Matrix3x3(tracker.differenceHeadView(latestRotation, foundFbMatrix[k]));
-                                            Matrix3x3.mult(diffFoundGyro, saveVectors[k], tmpVector2);
-                                        }
-                                        if (k == 0) {
-                                            matrix[12] = translations[k][0] = translationsRaw[k][0] = vecXLPFilter[k].get(tmpVector2.x);
-                                            matrix[13] = translations[k][1] = translationsRaw[k][1] = vecYLPFilter[k].get(tmpVector2.y);
-                                            matrix[14] = translations[k][2] = translationsRaw[k][2] = tmpVector2.z;
-                                            updateMatrix = true;
-                                        } else {
-                                            translationsRaw[k][0] = vecXLPFilter[k].get(tmpVector2.x);
-                                            translationsRaw[k][1] = vecYLPFilter[k].get(tmpVector2.y);
-                                            translationsRaw[k][2] = tmpVector2.z;
-                                            inTranslation[0] = translationsRaw[k][0];
-                                            inTranslation[1] = translationsRaw[k][1];
-                                            inTranslation[2] = translationsRaw[k][2];
-                                            inTranslation[3] = 1f;
-                                            Matrix.multiplyMV(distTranslation, 0, modelMatrix, 0, inTranslation, 0);
-                                            translations[k][0] = distTranslation[0];
-                                            translations[k][1] = distTranslation[1];
-                                            translations[k][2] = distTranslation[2];
+                                    } else {
+                                        synchronized (distanceLPFilter) {
+                                            if (vecXLPFilter[k].alpha > Config.XY_LOWPASS * Config.LOWEST) {
+                                                vecXLPFilter[k].alpha -= Config.LOSS_ADJUST_RATE * Config.XY_LOWPASS;
+                                                vecXLPFilter[k].alpha = Math.max(Config.XY_LOWPASS * Config.LOWEST, vecXLPFilter[k].alpha);
+                                            }
+                                            if (vecYLPFilter[k].alpha > Config.XY_LOWPASS * Config.LOWEST) {
+                                                vecYLPFilter[k].alpha -= Config.LOSS_ADJUST_RATE * Config.XY_LOWPASS;
+                                                vecYLPFilter[k].alpha = Math.max(Config.XY_LOWPASS * Config.LOWEST, vecYLPFilter[k].alpha);
+                                            }
+                                            if (distanceLPFilter[k].alpha > Config.DISTANCE_LOWPASS * Config.LOWEST) {
+                                                distanceLPFilter[k].alpha -= Config.LOSS_ADJUST_RATE * Config.DISTANCE_LOWPASS;
+                                                distanceLPFilter[k].alpha = Math.max(Config.DISTANCE_LOWPASS * Config.LOWEST, distanceLPFilter[k].alpha);
+                                            }
+                                            trackerLoss[k] = true;
                                         }
 
-                                        if (!trackerLoss[k]) {
-                                            vecXLPFilter[k].backAlpha = vecXLPFilter[k].alpha;
-                                            vecYLPFilter[k].backAlpha = vecYLPFilter[k].alpha;
-                                            distanceLPFilter[k].backAlpha = distanceLPFilter[k].alpha;
+                                        if (Config.DO_GYRO_CORRECTION) {
+                                            synchronized (GPUProcessor.this) {
+                                                Matrix3x3 diffFoundGyro = new Matrix3x3(tracker.differenceHeadView(latestRotation, foundFbMatrix[k]));
+                                                Matrix3x3.mult(diffFoundGyro, saveVectors[k], tmpVector2);
+                                            }
+                                            if (k == 0) {
+                                                matrix[12] = translations[k][0] = translationsRaw[k][0] = vecXLPFilter[k].get(tmpVector2.x, Config.XY_LOWPASS);
+                                                matrix[13] = translations[k][1] = translationsRaw[k][1] = vecYLPFilter[k].get(tmpVector2.y, Config.XY_LOWPASS);
+                                                matrix[14] = translations[k][2] = translationsRaw[k][2] = tmpVector2.z;
+                                                updateMatrix = true;
+                                            } else {
+                                                translationsRaw[k][0] = vecXLPFilter[k].get(tmpVector2.x, Config.XY_LOWPASS);
+                                                translationsRaw[k][1] = vecYLPFilter[k].get(tmpVector2.y, Config.XY_LOWPASS);
+                                                translationsRaw[k][2] = tmpVector2.z;
+                                                inTranslation[0] = translationsRaw[k][0];
+                                                inTranslation[1] = translationsRaw[k][1];
+                                                inTranslation[2] = translationsRaw[k][2];
+                                                inTranslation[3] = 1f;
+                                                Matrix.multiplyMV(distTranslation, 0, modelMatrix, 0, inTranslation, 0);
+                                                translations[k][0] = distTranslation[0];
+                                                translations[k][1] = distTranslation[1];
+                                                translations[k][2] = distTranslation[2];
+                                            }
                                         }
-                                        // Adjust filters for tracker loss/gain
-                                        if (vecXLPFilter[k].backAlpha > Config.XY_LOWPASS * Config.LOWEST) {
-                                            vecXLPFilter[k].backAlpha -= Config.LOSS_ADJUST_RATE * Config.XY_LOWPASS;
-                                        }
-                                        if (vecYLPFilter[k].backAlpha > Config.XY_LOWPASS * Config.LOWEST) {
-                                            vecYLPFilter[k].backAlpha -= Config.LOSS_ADJUST_RATE * Config.XY_LOWPASS;
-                                        }
-                                        if (distanceLPFilter[k].backAlpha > Config.DISTANCE_LOWPASS * Config.LOWEST) {
-                                            distanceLPFilter[k].backAlpha -= Config.LOSS_ADJUST_RATE * Config.DISTANCE_LOWPASS;
-                                        }
-                                        trackerLoss[k] = true;
                                     }
                                 }
                                 if (updateMatrix) {

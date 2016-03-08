@@ -36,7 +36,9 @@ public class Config {
     public static final double OVER_EXPOSURE_PROTECTION = 0.9;
 
     // Adjust for camera smearing of the blob with use of the gyroscope
-    public static final double SMEAR_ADJUSTER = 1000.0;
+    public static final double SMEAR_ADJUSTER = 100.0;
+    // Adjust for distance
+    public static final float DISTANCE_ADJUSTER = 1.0f;
 
     // Boundary check for bright values. If cap is fixed CAP_REF is used as boundary.
     public static final boolean CAP_FIXED = false;
@@ -50,7 +52,7 @@ public class Config {
     // Set exposure lock for better results in most conditions, at cost of brightness of image.
     // Setting exposure lock can lead to overexposure upclose.
     // If exposure lock is disabled, minimal exposure compensation is applied.
-    public static final boolean EXPOSURE_LOCK = true;
+    public static final boolean EXPOSURE_LOCK = false;
     // Force a flash to find reflective objects, every ... * 10 ms.
     public static final int FORCED_FLASH_INTERVAL = 300; //  * 10 ms
     // Time the flash is turned off. As short as possible but take into account rolling shutter.
@@ -104,7 +106,7 @@ public class Config {
     // Filter if AccCompasTracker is used for tracker
     public static final float SOFTEN_NON_GYRO_ROTATION = 0.1f;
     // Filters for distance measurement.
-    public static final float DISTANCE_LOWPASS = .4f;
+    public static final float DISTANCE_LOWPASS = 1f;
     public static final int DISTANCE_MEDIAN = 3;
 
     /* Post exposure options */
@@ -160,6 +162,6 @@ public class Config {
     /* On marker loss */
     // How fast to restore the lowpass filters
     public static final float GAIN_ADJUST_RATE = 0.01f; // Percentage per frame
-    public static final float LOSS_ADJUST_RATE = 0.02f; // Percentage per frame
+    public static final float LOSS_ADJUST_RATE = 0.1f; // Percentage per frame
     public static final float LOWEST = 0.1f; // Lowest in percentage
 }
