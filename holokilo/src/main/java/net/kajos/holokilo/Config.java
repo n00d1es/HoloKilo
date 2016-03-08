@@ -35,6 +35,9 @@ public class Config {
     // Checked when a color is regarded overexposed. Used in shader.
     public static final double OVER_EXPOSURE_PROTECTION = 0.9;
 
+    // Adjust for camera smearing of the blob with use of the gyroscope
+    public static final double SMEAR_ADJUSTER = 1000.0;
+
     // Boundary check for bright values. If cap is fixed CAP_REF is used as boundary.
     public static final boolean CAP_FIXED = false;
     public static final float CAP_REF = 0;
@@ -60,7 +63,7 @@ public class Config {
 
     // glReadPixels benefits if FBOs are read out a while later than writing to.
     // However that can introduce extra latency, so turned off now.
-    public static final int READ_BUFFER_SIZE = 8;
+    public static final int READ_BUFFER_SIZE = 2;
 
     /* View options */
 
@@ -104,10 +107,6 @@ public class Config {
     // Filters for distance measurement.
     public static final float DISTANCE_LOWPASS = .5f;
     public static final int DISTANCE_MEDIAN = 3;
-    // Rotational values are stored for each FBO and used for prediction.
-    // Reading a value further back, means more prediction basically.
-    // Don't go above SAMPLE_FRAMES
-    public static final int GYRO_FRAMES_LOOKBACK = 0;
 
     /* Post exposure options */
 

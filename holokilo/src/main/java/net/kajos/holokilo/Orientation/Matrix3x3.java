@@ -256,6 +256,6 @@ public class Matrix3x3
     public static double angle(Matrix3x3 a, Matrix3x3 b) {
         Matrix3x3.mult(a, fixed, tmp);
         Matrix3x3.mult(b, fixed, tmp2);
-        return Math.acos(Vector3.dot(tmp, tmp2));
+        return Vector3.dot(tmp, tmp2);
     }
 }

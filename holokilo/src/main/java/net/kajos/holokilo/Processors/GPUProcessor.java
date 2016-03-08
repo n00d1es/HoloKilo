@@ -744,9 +744,9 @@ public class GPUProcessor {
             final boolean compareSizes = input.getCompareSizes();
             final double movement;
             if (!stableFrame) {
-                movement = input.getMovement();// * 3.0;
+                movement = 1.0 + (1.0 - input.getMovement()) * Config.SMEAR_ADJUSTER;// * 3.0;
             } else {
-                movement = input.getMovement();
+                movement = 1.0 + (1.0 - input.getMovement()) * Config.SMEAR_ADJUSTER;
             }
             matrix[3] = 0f;
             matrix[7] = 0f;
@@ -781,7 +781,8 @@ public class GPUProcessor {
                                             rawDistance = newDistance;
                                             newDistance /= pixelsFar;
                                             // Account for smear by movement
-                                            newDistance = newDistance * (float) (1.0 - movement);
+                                            Log.d(Config.TAG, "Movement: " + movement);
+                                            newDistance = newDistance / (float)movement;
                                             newDistance = 1f - newDistance;
                                             Log.d(Config.TAG, "Distance raw: " + newDistance);
                                             newDistance = Math.max(0.001f, Math.min(1f, newDistance));
@@ -1211,20 +1212,21 @@ public class GPUProcessor {
             prevFb += Config.SAMPLE_FRAMES;
         }
 
-        Matrix3x3 prevMatrix = framebuffers[countFb].getMatrix();
+        double movement;
+        synchronized (GPUProcessor.this) {
+            movement = Matrix3x3.angle(latestRotation, framebuffers[countFb].getMatrix());
+            if (movement != movement) {
+                movement = 0;
+            }
+        }
 
         countFb++;
 
         if (countFb >= Config.SAMPLE_FRAMES)
             countFb -= Config.SAMPLE_FRAMES;
 
-        synchronized (GPUProcessor.this) {
-            double movement = Matrix3x3.angle(latestRotation, prevMatrix);
-            if (movement != movement) {
-                movement = 0;
-            }
-            framebuffers[countFb].setMovement(movement);
-        }
+        framebuffers[countFb].setMovement(movement);
+        framebuffers[countFb].setMatrix(latestRotation);
 
         boolean flashFrame;
         if (flashSem.tryAcquire()) {
@@ -1236,11 +1238,10 @@ public class GPUProcessor {
             flashFrame = false;
         }
 
-        framebuffers[countFb].setFlashOff(flashFrame);
+        framebuffers[countFb].setTimestamp(framebufferTimestamp);
         framebuffers[countFb].setStableFrame(stableFrame);
         framebuffers[countFb].setCompareSizes(stableFrame || compareSizes);
-        framebuffers[countFb].setMatrix(latestRotation);
-        framebuffers[countFb].setTimestamp(framebufferTimestamp);
+        framebuffers[countFb].setFlashOff(flashFrame);
         framebuffers[countFb].bind();
 
         GLES20.glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
