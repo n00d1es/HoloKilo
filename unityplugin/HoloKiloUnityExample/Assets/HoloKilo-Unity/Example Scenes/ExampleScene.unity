@@ -543,12 +543,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cefa8d8c4b3c80443b120d4edb419fb3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  updateCameraMatrix: 1
   ambientLight: {fileID: 925552727}
   secondCamera: {fileID: 1971162183}
   trackedObjects:
   - {fileID: 0}
-  - {fileID: 164641464}
-  - {fileID: 22369523}
+  - {fileID: 0}
+  - {fileID: 0}
   scaleRenderTexture: 1
 --- !u!1 &612696749
 GameObject:

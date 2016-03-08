@@ -6,6 +6,7 @@ package net.kajos.holokilo.Util;
 public class LowPassFilter {
     private float prev = 0f;
     public float alpha;
+    public float backAlpha;
     private boolean empty = true;
 
     public LowPassFilter(float alpha) {
@@ -22,7 +23,7 @@ public class LowPassFilter {
     }
 
     public void setAlpha(float alpha) {
-        this.alpha = alpha;
+        this.alpha = this.backAlpha = alpha;
     }
 
     public float get(float value) {

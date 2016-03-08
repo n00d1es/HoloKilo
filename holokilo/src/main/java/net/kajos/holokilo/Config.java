@@ -27,7 +27,7 @@ public class Config {
     // Camera scale of 2, gets maximum camera size of half screen width and half screen height.
     public static int CAMERA_SCALE = USE_CARDBOARD ? 2 : 1;
     // Scaler for framebuffer size. Camera width and height is divided by this.
-    public static int FBO_SCALE = USE_CARDBOARD ? 1 : 2; // power of two preferably
+    public static int FBO_SCALE = USE_CARDBOARD ? 2 : 4; // power of two preferably
 
     // Static value for scaling distance
     public static final float FAR_METER = 10f;
@@ -100,12 +100,11 @@ public class Config {
     // Enable extrapolating with gyroscope.
     public static final boolean DO_GYRO_CORRECTION = !DUMMY_TRACKER && true;
     // Filters for x,y positions
-    public static final int SOFTEN_MEDIAN = 1;
-    public static final float SOFTEN_LOWPASS = 1f;
+    public static final float XY_LOWPASS = 1f;
     // Filter if AccCompasTracker is used for tracker
     public static final float SOFTEN_NON_GYRO_ROTATION = 0.1f;
     // Filters for distance measurement.
-    public static final float DISTANCE_LOWPASS = .5f;
+    public static final float DISTANCE_LOWPASS = .4f;
     public static final int DISTANCE_MEDIAN = 3;
 
     /* Post exposure options */
@@ -157,7 +156,10 @@ public class Config {
 
     // Require a summed value of colored pixels.
     public static final int PIXELS_REQUIRED_DIV = 100 * 100;
-    // Don't look at edges as it will lead to a partial blob,
-    // giving faulty distance.
-    public static final int EDGE = 4;
+
+    /* On marker loss */
+    // How fast to restore the lowpass filters
+    public static final float GAIN_ADJUST_RATE = 0.01f; // Percentage per frame
+    public static final float LOSS_ADJUST_RATE = 0.02f; // Percentage per frame
+    public static final float LOWEST = 0.1f; // Lowest in percentage
 }

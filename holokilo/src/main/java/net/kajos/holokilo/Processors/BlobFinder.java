@@ -270,6 +270,12 @@ public class BlobFinder
         }
 
         BlobBundle newBlobs = new BlobBundle();
+
+        int edgeStartW = 0;
+        int edgeStartH = 0;
+        int edgeEndW = width - 1;
+        int edgeEndH = height - 1;
+
         for (int i = label - 1; i > 0; i--) {
             if (labelArray[i] != i) {
                 if (xMaxArray[i] > xMaxArray[labelArray[i]]) xMaxArray[labelArray[i]] = xMaxArray[i];
@@ -291,7 +297,7 @@ public class BlobFinder
                 while (l != labelArray[l]) l = labelArray[l];
                 labelArray[i] = l;
             } else {
-                if (xMinArray[i] >= Config.EDGE && yMinArray[i] >= Config.EDGE && xMaxArray[i] < width - Config.EDGE && yMaxArray[i] < height - Config.EDGE) {
+                if (xMinArray[i] > edgeStartW && yMinArray[i] > edgeStartH && xMaxArray[i] < edgeEndW && yMaxArray[i] < edgeEndH) {
                     if (massGArray[i] > bound) { //massRArray[i] > bound || massGArray[i] > bound || massBArray[i] > bound) {
 
                         int x = (xMaxArray[i] + xMinArray[i]) / 2;
