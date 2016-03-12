@@ -11,6 +11,11 @@ The HoloKilo positional tracker uses (retro)reflective material for markers. To 
 - A green circular patch of reflective material (blue and red optional), available at local stores
 
 ##Media
+Video with latest version:
+
+[![Video 0](http://img.youtube.com/vi/EGo1DYRHhnM/0.jpg)](http://www.youtube.com/watch?v=EGo1DYRHhnM)
+
+Older videos:
 
 [![Video 1](http://img.youtube.com/vi/K6ztsdTKuzc/0.jpg)](http://www.youtube.com/watch?v=K6ztsdTKuzc)
 [![Video 2](http://img.youtube.com/vi/VQW2xLNd_-Y/0.jpg)](http://www.youtube.com/watch?v=VQW2xLNd_-Y)
