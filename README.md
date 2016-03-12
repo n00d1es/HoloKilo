@@ -37,6 +37,8 @@ Calculating distance by blob size has some disadvantages due to camera movement 
 
 Currently 3 blobs are tracked (green for camera viewmatrix, red and blue extra for example for controllers), but it is very easy to change this. The blobfinder doesn't need to perform much more work for more blobs.
 
+Some have concerns over the battery drain and heat from the camera flash. In my testing this wasn't a problem at all. If I understand correctly, the average flash led consumes 80-100 mA and the average battery has 2000mAh. With that in mind the average phone can power the flash 20 hours not taking in other factors such as the display. I also have no noticed my flash degrading, but this could be the case with presumably older phones.
+
 ##Example
 https://github.com/Kjos/HoloKilo/raw/master/holokilo-debug.apk
 
