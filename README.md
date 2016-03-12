@@ -47,8 +47,12 @@ Some have concerns over the battery drain and heat from the camera flash. In my 
 Different (retro) reflective materials have different properties. I have found the 'car neon reflective tape' from aliexpress to be good for close by. Some other reflective material I ordered from a local webshop, shiny looking with diamond patterns, works better for me for tracking at larger distances (which is shown in the videos), but sometimes less closeby. Don't spend too much on the materials; it should work with cheap materials of a few bucks!
 
 Some examples: 
-http://www.aliexpress.com/item/5Meter-Green-Reflective-Film-Self-adhesive-PET-Tape-Reflective-Tape-Sticker-For-Truck-Car-Motorcycle-Warning/32602596833.html (long range)
-http://www.aliexpress.com/item/5cmx10M-Reflective-Strips-Car-Stickers-for-car-styling-Motorcycle-decoration-Automobiles-Safety-Warning-Mark-Tape-Green/32622350483.html (short range)
+
+long range:
+http://www.aliexpress.com/item/5Meter-Green-Reflective-Film-Self-adhesive-PET-Tape-Reflective-Tape-Sticker-For-Truck-Car-Motorcycle-Warning/32602596833.html
+
+short range:
+http://www.aliexpress.com/item/5cmx10M-Reflective-Strips-Car-Stickers-for-car-styling-Motorcycle-decoration-Automobiles-Safety-Warning-Mark-Tape-Green/32622350483.html
 
 I've used colored materials because they're easy to distinguish from for example a metallic vase or mirror, which can also reflect light as if retro reflective. Besides that, lamps tend to be white and it is preferable to filter them out. 
 I've also done testing with a colored (green) filter in front of the flash and using regular white reflective material; this works too.
