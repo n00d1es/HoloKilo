@@ -39,6 +39,9 @@ Currently 3 blobs are tracked (green for camera viewmatrix, red and blue extra f
 
 Some have concerns over the battery drain and heat from the camera flash. In my testing this wasn't a problem at all. If I understand correctly, the average flash led consumes 80-100 mA and the average battery has 2000mAh. With that in mind the average phone can power the flash 20 hours not taking in other factors such as the display. I also have not noticed my flash degrading, but this could be the case with presumably older phones. Given that Android provides its own flashlight function in the newer versions, I don't think there is a problem with it.
 
+Different (retro) reflective materials have different properties. I have found the 'car neon reflective tape' from aliexpress to be good for close by. Some other reflective material I ordered from a local webshop, shiny looking with diamond patterns, works better for me for tracking at larger distances (which is shown in the videos). I've used colored materials because they're easy to distinguish from for example a metallic vase or mirror, which can also reflect light as if retro reflective. Besides that, lamps tend to be white and it is preferable to filter them out. 
+I've also done testing with a colored (green) filter in front of the flash and using regular white reflective material; this works too.
+
 ##Example
 https://github.com/Kjos/HoloKilo/raw/master/holokilo-debug.apk
 
