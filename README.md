@@ -17,7 +17,7 @@ The HoloKilo positional tracker uses (retro)reflective material for markers. To 
 [![Video 3](http://img.youtube.com/vi/ydd2h-7mcxk/0.jpg)](http://www.youtube.com/watch?v=ydd2h-7mcxk)
 
 Note: Videos on the right are taken with a Moto G 2nd phone, which is known for its bad gyroscope. The screenrecorder also take away a lot of the smoothness, due to a performance impact. Real life performance is a consistent 30fps on the Moto G 2nd.
-Also, videos were taken of an older version than the one on this Github.
+Also, videos were taken of an older version than the one on this Github and I've improved latency considerably.
 
 ##Possible usecases
 - Virtual Reality (VR)
