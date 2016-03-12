@@ -43,7 +43,6 @@ public class UnityARPlayerActivity extends Activity {
         getWindow().setFormat(2);
         layout = new FrameLayout(this);
 
-
         unityPlayer = new UnityPlayer(this);
 
         layout.addView(unityPlayer);

@@ -8,6 +8,7 @@ import java.nio.IntBuffer;
 /**
  * Created by kajos on 28-9-15.
  */
+// A texture meant for stricly uploading data to GPU
 public class UploadTexture {
     public int width, height;
 

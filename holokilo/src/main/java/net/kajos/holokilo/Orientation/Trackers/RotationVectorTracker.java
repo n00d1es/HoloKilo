@@ -15,6 +15,7 @@ import net.kajos.holokilo.Orientation.Vector3;
  * Created by kajos on 5-12-15.
  */
 public class RotationVectorTracker extends Tracker implements SensorEventListener {
+    // Tracker that uses Android's RotationVector to track
     protected Matrix3x3 initial = new Matrix3x3();
 
     protected Matrix3x3 flip = new Matrix3x3();

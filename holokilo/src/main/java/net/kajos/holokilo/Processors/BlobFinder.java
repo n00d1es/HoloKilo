@@ -327,6 +327,11 @@ public class BlobFinder
             }
         }
 
+        // Use the new blobs with the blobs of the previous frame to see
+        // which have changed or moved.
+        // A new blob is found to be the same as another if it closest to it.
+        // Blobs which are new are regarded as not being retro reflective, but a
+        // flash is requested to see if they are.
         try {
             blobSem.acquire();
             if (hasFlashOff) {

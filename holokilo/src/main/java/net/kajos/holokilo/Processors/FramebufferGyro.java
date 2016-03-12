@@ -6,6 +6,7 @@ import net.kajos.holokilo.Orientation.Matrix3x3;
  * Created by kajos on 2-12-15.
  */
 public class FramebufferGyro extends Framebuffer {
+    // Framebuffer with extra information
     private Matrix3x3 matrix = new Matrix3x3();
     private double movement = 0;
     private long timestamp = -1;

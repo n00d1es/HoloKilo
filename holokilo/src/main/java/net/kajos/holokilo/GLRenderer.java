@@ -111,13 +111,17 @@ public class GLRenderer implements GLSurfaceView.Renderer, SurfaceTexture.OnFram
 
         setViewport();
 
+        // Initialize cameratexture and start camera
         if (isCameraStopped()) {
             cameraTexture = createCameraTexture();
-            startCamera(getCameraTexture(), this.width, this.height);
+            startCamera(getCameraTexture(), this.width, this.height, Config.EXPOSURE_LOCK);
         }
         if (gpuProcessor != null)
             gpuProcessor.destroy();
+        // Remove found blobs, they're useless now
         BlobFinder.reset();
+        // Create gpuprocessor with the created cameratexture
+        // Use screensize and camera size as parameters, fov as well
         gpuProcessor = new GPUProcessor(tracker, this.width, this.height, getCameraWidth(), getCameraHeight(), getCameraHFov(), getCameraVFov(), cameraTexture);
     }
 
@@ -178,6 +182,8 @@ public class GLRenderer implements GLSurfaceView.Renderer, SurfaceTexture.OnFram
         int[] texture = new int[1];
 
         GLES20.glGenTextures(1,texture, 0);
+        // External texture so that camera image is directly
+        // fed in GPU. Needs a GLES1.1 extention.
         GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, texture[0]);
         GLES20.glTexParameterf(GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
                 GL10.GL_TEXTURE_MIN_FILTER,GL10.GL_LINEAR);
@@ -220,7 +226,7 @@ public class GLRenderer implements GLSurfaceView.Renderer, SurfaceTexture.OnFram
     private boolean exposureLockSupported = false;
     private boolean whiteBalanceLockSupported = false;
     private Camera.Parameters params = null;
-    public void startCamera(int texture, int screenWidth, int screenHeight) {
+    public void startCamera(int texture, int screenWidth, int screenHeight, boolean exposureLock) {
         surface = new SurfaceTexture(texture);
         surface.setOnFrameAvailableListener(this);
 
@@ -230,6 +236,7 @@ public class GLRenderer implements GLSurfaceView.Renderer, SurfaceTexture.OnFram
         int[] range = params.getSupportedPreviewFpsRange().get(params.getSupportedPreviewFpsRange().size()-1);
         framerate = range[1];
         params.setPreviewFpsRange(range[0], range[1]);
+        // Android cameraframerate is given in framerate * 1000
         framerate = 1000000 / framerate;
         framerateFilter.set(framerate);
         Log.d(Config.TAG, "Max framerate camera: " + framerate);
@@ -238,28 +245,41 @@ public class GLRenderer implements GLSurfaceView.Renderer, SurfaceTexture.OnFram
         // Need minimal exposure, as else the RR will not stand out enough.
         params.setRecordingHint(true);
         List<Camera.Size> sizes = params.getSupportedPreviewSizes();
+        // Find a resolution supported by camera with maximum size of given params.
+        // Take the highest resolution below given max.
         Size frameSize = maxCameraFrameSize(sizes, screenWidth / Config.CAMERA_SCALE, screenHeight);
         camera.setParameters(params);
 
         Log.d(Config.TAG, "Set video size to " + frameSize.width + "x" + frameSize.height);
         params.setPreviewSize(frameSize.width, frameSize.height);
 
-        params.setVideoStabilization(true);
-        // For my purpose I don't need antibanding..
+        // No autobanding, it's bad for this purpose.
         params.setAntibanding(Camera.Parameters.ANTIBANDING_OFF);
+        // No zoom of course
         params.setZoom(0);
-        // Focus mode
+        // Focus mode set by config. Don't want to change focus mode when
+        // viewing in AR at least.
         params.setFocusMode(Config.FOCUS_MODE);
+        // Set whitebalance according config. Might be worth trying to poke it
+        // a bit, but wont help much.
         params.setWhiteBalance(Config.WHITE_BALANCE);
 
+        // Minimum exposure compensation is best in my experience.
+        // Used only when exposure lock is off.
+        // When exposurelock is off, holokilo might work better in daylight.
         params.setExposureCompensation(params.getMinExposureCompensation());
+
+        // Video stabilization might help with performance.
+        // It might give wrong results in accordance with non corrected gyro,
+        // but haven't had notable problems yet.
         if (params.isVideoStabilizationSupported())
             params.setVideoStabilization(true);
 
+        // Check first, required or might crash on some devices probably.
         exposureLockSupported = params.isAutoExposureLockSupported();
         whiteBalanceLockSupported = params.isAutoWhiteBalanceLockSupported();
 
-        if (Config.EXPOSURE_LOCK) {
+        if (exposureLock) {
             if (exposureLockSupported)
                 params.setAutoExposureLock(true);
             if (whiteBalanceLockSupported)
@@ -267,7 +287,10 @@ public class GLRenderer implements GLSurfaceView.Renderer, SurfaceTexture.OnFram
         }
 
         try {
+            // Set parameters before preview, this is important
+            // for exposurelock.
             camera.setParameters(params);
+            // Give camera to opengl texture
             camera.setPreviewTexture(surface);
             camera.startPreview();
         } catch (IOException ioe) {
@@ -282,7 +305,16 @@ public class GLRenderer implements GLSurfaceView.Renderer, SurfaceTexture.OnFram
         }
     }
 
+    // Set exposurelock while running app.
+    // Might be handy to have a day/night mode toggle as preference option.
+    public void setExposureLock(boolean state) {
+        closeCamera();
+        startCamera(getCameraTexture(), this.width, this.height, state);
+    }
+
     private static volatile boolean doFlash = false;
+    // Call this function when another flash is required.
+    // This will happen when blobs are lost or gained.
     public static void requestFlash() {
         doFlash = true;
     }
@@ -299,27 +331,43 @@ public class GLRenderer implements GLSurfaceView.Renderer, SurfaceTexture.OnFram
                     Thread.sleep((int) (Config.BLINK_TIME * (double) framerate));
                     int counter = 0;
                     while(isRunning) {
+                        // A flash is required.
                         if (doFlash) {
+                            // A stable frame is a frame that is not on the edge of a flash (i.e. half frame is lighted).
+                            // A non stable frame is a frame where light is not certain to be on or off. These frames
+                            // will be coupled and used together which will result in a lighted but smeared frame, but still
+                            // useful for tracking x,y of blobs (not for blob size so much).
                             gpuProcessor.doStableFrame(false);
                             gpuProcessor.doCompareSizes(true);
+                            // Turn flash off
                             flashOff();
+                            // Sleep to make sure they captured frame with flash off will not not be half lighted.
                             Thread.sleep((int) (Config.BLINK_TIME * (double) framerate));
                             if (!isRunning)
                                 return;
 
+                            // Catch the frame where flash is certain to be completely off.
                             gpuProcessor.catchFlashlessFrame();
                             if (!isRunning)
                                 return;
 
+                            // Turn flash on.
                             flashOn();
+
+                            // Sleep to make sure frame will be completely lighted.
                             Thread.sleep((int) (Config.BLINK_TIME * (double) framerate));
 
                             if (!isRunning)
                                 return;
 
+                            // From now on frames are stably lit again.
                             gpuProcessor.doStableFrame(true);
                             gpuProcessor.doCompareSizes(true);
+
+                            // Put a minimum time between flashes to ensure there will be no
+                            // stroboscopic effect.
                             Thread.sleep((int) (Config.MIN_STABLE_TIME * (double) framerate));
+
                             doFlash = false;
                             counter = 0;
                         } else {
@@ -369,7 +417,10 @@ public class GLRenderer implements GLSurfaceView.Renderer, SurfaceTexture.OnFram
     }
 
     private void flashOn() {
+        // Torch mode allows settings flash fast
         params.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+        // Use previous params so getParameters will not be called,
+        // it will add latency.
         camera.setParameters(params);
     }
 
@@ -378,6 +429,7 @@ public class GLRenderer implements GLSurfaceView.Renderer, SurfaceTexture.OnFram
         camera.setParameters(params);
     }
 
+    // Camera size that is used.
     protected int calcWidth = 0;
     protected int calcHeight = 0;
 

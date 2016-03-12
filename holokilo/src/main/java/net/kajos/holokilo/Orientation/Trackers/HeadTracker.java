@@ -25,6 +25,7 @@ import com.google.vrtoolkit.cardboard.sensors.internal.Vector3d;
 import java.util.concurrent.TimeUnit;
 
 public class HeadTracker implements SensorEventListener {
+    // Google's headtracker source.
     public final OrientationEKF tracker;
 
     private static final float DEFAULT_NECK_HORIZONTAL_OFFSET = 0.08F;

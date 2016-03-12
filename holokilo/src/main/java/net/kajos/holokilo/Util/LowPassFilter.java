@@ -26,6 +26,7 @@ public class LowPassFilter {
         this.alpha = alpha;
     }
 
+    // Additional multiplier which is used on alpha.
     public void setExtraMultiplier(float alpha) {
         this.extraMultiplier = alpha;
     }

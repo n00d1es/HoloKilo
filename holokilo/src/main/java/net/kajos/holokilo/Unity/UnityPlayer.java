@@ -26,6 +26,7 @@ public class UnityPlayer extends com.unity3d.player.UnityPlayer {
         this.activity = activity;
     }
 
+    // Dont let unity use its own camera
     @Override
     protected int[] initCamera(int var1, int var2, int var3, int var4) {
         return null;
@@ -40,6 +41,10 @@ public class UnityPlayer extends com.unity3d.player.UnityPlayer {
 
     @Override
     protected void executeGLThreadJobs() {
+        // Here it is certain that the Unity renderer is active.
+        // Attempt to find the GL context to share with the holokilo
+        // opengl context. The two contexts run side by side, the unity
+        // context runs in background and passes its results to holokilo.
         EGL10 egl = ((EGL10)EGLContext.getEGL());
         final EGLContext con = egl.eglGetCurrentContext();
 
@@ -56,6 +61,9 @@ public class UnityPlayer extends com.unity3d.player.UnityPlayer {
             Log.d(Config.TAG, "GL Version: " + majorVersionUnity);
         }
 
+        // Rescale the unity surface to 1x1 pixel to hide,
+        // but keep it regular sized to show the unity splashscreen,
+        // in accordance with their license agreement.
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {

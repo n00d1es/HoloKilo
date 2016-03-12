@@ -31,6 +31,8 @@ import net.kajos.holokilo.Util.LowPassFilter;
  */
 public class GoogleHeadTracker extends Tracker
 {
+    // Tracker that wraps around Google Cardboard's headtracker.
+
     private HeadTracker headTracker;
     private LowPassFilter[] filters = new LowPassFilter[16];
 

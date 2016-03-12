@@ -6,6 +6,7 @@ import java.util.*;
  * Created by Kajos on 7-1-2016.
  */
 public class BlobBundle {
+    // A bundle of blobs.
     public List<Blob> list = new LinkedList<Blob>();
     public ArrayList<BlobRelation> sorted = new ArrayList<BlobRelation>();
     public HashMap<Blob, Blob> neighbors = new HashMap<Blob, Blob>();

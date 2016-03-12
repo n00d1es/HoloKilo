@@ -52,7 +52,7 @@ public class Config {
     // Set exposure lock for better results in most conditions, at cost of brightness of image.
     // Setting exposure lock can lead to overexposure upclose.
     // If exposure lock is disabled, minimal exposure compensation is applied.
-    public static final boolean EXPOSURE_LOCK = false;
+    public static final boolean EXPOSURE_LOCK = true;
     // Force a flash to find reflective objects, every ... * 10 ms.
     public static final int FORCED_FLASH_INTERVAL = 300; //  * 10 ms
     // Time the flash is turned off. As short as possible but take into account rolling shutter.
@@ -164,4 +164,7 @@ public class Config {
     public static final float GAIN_ADJUST_RATE = 0.01f; // Percentage per frame
     public static final float LOSS_ADJUST_RATE = 0.1f; // Percentage per frame
     public static final float LOWEST = 0.1f; // Lowest in percentage
+
+    /* Unity options */
+    public static final boolean UNITY_SEMAPHORE = true;
 }

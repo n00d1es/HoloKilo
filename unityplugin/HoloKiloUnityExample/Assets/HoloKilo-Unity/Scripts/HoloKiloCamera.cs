@@ -41,9 +41,9 @@ public class HoloKiloCamera : MonoBehaviour
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
     }
 
+	AndroidJavaObject androidObject = null;
     void OnPreRender()
     {
-        AndroidJavaObject androidObject = androidClass.CallStatic<AndroidJavaObject>("getInstance");
         if (androidObject != null)
         {
             if (androidObject.Call<bool>("isStopped"))
@@ -149,74 +149,6 @@ public class HoloKiloCamera : MonoBehaviour
                 ambientLight.color = new Color(color[0] / 255f, color[1] / 255f, color[2] / 255f, 1f);
             }
 
-			if (updateCameraMatrix) {
-				if (drawCardboard)
-				{
-					float[] viewBoth = androidObject.Call<float[]>("getViewMatrixBoth");
-
-					viewMatrixLeft.m00 = viewBoth[0];
-					viewMatrixLeft.m01 = viewBoth[4];
-					viewMatrixLeft.m02 = viewBoth[8];
-					viewMatrixLeft.m03 = viewBoth[12];
-					viewMatrixLeft.m10 = viewBoth[1];
-					viewMatrixLeft.m11 = viewBoth[5];
-					viewMatrixLeft.m12 = viewBoth[9];
-					viewMatrixLeft.m13 = viewBoth[13];
-					viewMatrixLeft.m20 = viewBoth[2];
-					viewMatrixLeft.m21 = viewBoth[6];
-					viewMatrixLeft.m22 = viewBoth[10];
-					viewMatrixLeft.m23 = viewBoth[14];
-					viewMatrixLeft.m30 = viewBoth[3];
-					viewMatrixLeft.m31 = viewBoth[7];
-					viewMatrixLeft.m32 = viewBoth[11];
-					viewMatrixLeft.m33 = viewBoth[15];
-
-					viewMatrixRight.m00 = viewBoth[16];
-					viewMatrixRight.m01 = viewBoth[20];
-					viewMatrixRight.m02 = viewBoth[24];
-					viewMatrixRight.m03 = viewBoth[28];
-					viewMatrixRight.m10 = viewBoth[17];
-					viewMatrixRight.m11 = viewBoth[21];
-					viewMatrixRight.m12 = viewBoth[25];
-					viewMatrixRight.m13 = viewBoth[29];
-					viewMatrixRight.m20 = viewBoth[18];
-					viewMatrixRight.m21 = viewBoth[22];
-					viewMatrixRight.m22 = viewBoth[26];
-					viewMatrixRight.m23 = viewBoth[30];
-					viewMatrixRight.m30 = viewBoth[19];
-					viewMatrixRight.m31 = viewBoth[23];
-					viewMatrixRight.m32 = viewBoth[27];
-					viewMatrixRight.m33 = viewBoth[31];
-					
-					firstCamera.worldToCameraMatrix = viewMatrixLeft;
-					if (secondCamera != null)
-						secondCamera.worldToCameraMatrix = viewMatrixRight;
-				} else
-				{
-					float[] viewLeft = androidObject.Call<float[]>("getViewMatrixLeft");
-					
-					
-					viewMatrixLeft.m00 = viewLeft[0];
-					viewMatrixLeft.m01 = viewLeft[4];
-					viewMatrixLeft.m02 = viewLeft[8];
-					viewMatrixLeft.m03 = viewLeft[12];
-					viewMatrixLeft.m10 = viewLeft[1];
-					viewMatrixLeft.m11 = viewLeft[5];
-					viewMatrixLeft.m12 = viewLeft[9];
-					viewMatrixLeft.m13 = viewLeft[13];
-					viewMatrixLeft.m20 = viewLeft[2];
-					viewMatrixLeft.m21 = viewLeft[6];
-					viewMatrixLeft.m22 = viewLeft[10];
-					viewMatrixLeft.m23 = viewLeft[14];
-					viewMatrixLeft.m30 = viewLeft[3];
-					viewMatrixLeft.m31 = viewLeft[7];
-					viewMatrixLeft.m32 = viewLeft[11];
-					viewMatrixLeft.m33 = viewLeft[15];
-
-					firstCamera.worldToCameraMatrix = viewMatrixLeft;
-				}
-			}
-
             float[] translations = androidObject.Call<float[]>("getTranslations");
             for (int i = 0, k = 0; i < translations.Length && k < trackedObjects.Length; i += 3, k++)
             {
@@ -226,11 +158,81 @@ public class HoloKiloCamera : MonoBehaviour
                     Debug.Log("Position " + k + ": " + translations[i] + ", " + translations[i+1] + ", " + translations[i+2]);
                 }
             }
-        }
+			
+			CameraUpdate();
+        } else {
+			androidObject = androidClass.CallStatic<AndroidJavaObject>("getInstance");
+		}
     }
 
-    void Update()
+    void CameraUpdate()
     {
+		if (updateCameraMatrix) {
+			if (drawCardboard)
+			{
+				float[] viewBoth = androidObject.Call<float[]>("getViewMatrixBoth");
+
+				viewMatrixLeft.m00 = viewBoth[0];
+				viewMatrixLeft.m01 = viewBoth[4];
+				viewMatrixLeft.m02 = viewBoth[8];
+				viewMatrixLeft.m03 = viewBoth[12];
+				viewMatrixLeft.m10 = viewBoth[1];
+				viewMatrixLeft.m11 = viewBoth[5];
+				viewMatrixLeft.m12 = viewBoth[9];
+				viewMatrixLeft.m13 = viewBoth[13];
+				viewMatrixLeft.m20 = viewBoth[2];
+				viewMatrixLeft.m21 = viewBoth[6];
+				viewMatrixLeft.m22 = viewBoth[10];
+				viewMatrixLeft.m23 = viewBoth[14];
+				viewMatrixLeft.m30 = viewBoth[3];
+				viewMatrixLeft.m31 = viewBoth[7];
+				viewMatrixLeft.m32 = viewBoth[11];
+				viewMatrixLeft.m33 = viewBoth[15];
+
+				viewMatrixRight.m00 = viewBoth[16];
+				viewMatrixRight.m01 = viewBoth[20];
+				viewMatrixRight.m02 = viewBoth[24];
+				viewMatrixRight.m03 = viewBoth[28];
+				viewMatrixRight.m10 = viewBoth[17];
+				viewMatrixRight.m11 = viewBoth[21];
+				viewMatrixRight.m12 = viewBoth[25];
+				viewMatrixRight.m13 = viewBoth[29];
+				viewMatrixRight.m20 = viewBoth[18];
+				viewMatrixRight.m21 = viewBoth[22];
+				viewMatrixRight.m22 = viewBoth[26];
+				viewMatrixRight.m23 = viewBoth[30];
+				viewMatrixRight.m30 = viewBoth[19];
+				viewMatrixRight.m31 = viewBoth[23];
+				viewMatrixRight.m32 = viewBoth[27];
+				viewMatrixRight.m33 = viewBoth[31];
+				
+				firstCamera.worldToCameraMatrix = viewMatrixLeft;
+				if (secondCamera != null)
+					secondCamera.worldToCameraMatrix = viewMatrixRight;
+			} else
+			{
+				float[] viewLeft = androidObject.Call<float[]>("getViewMatrixLeft");
+				
+				viewMatrixLeft.m00 = viewLeft[0];
+				viewMatrixLeft.m01 = viewLeft[4];
+				viewMatrixLeft.m02 = viewLeft[8];
+				viewMatrixLeft.m03 = viewLeft[12];
+				viewMatrixLeft.m10 = viewLeft[1];
+				viewMatrixLeft.m11 = viewLeft[5];
+				viewMatrixLeft.m12 = viewLeft[9];
+				viewMatrixLeft.m13 = viewLeft[13];
+				viewMatrixLeft.m20 = viewLeft[2];
+				viewMatrixLeft.m21 = viewLeft[6];
+				viewMatrixLeft.m22 = viewLeft[10];
+				viewMatrixLeft.m23 = viewLeft[14];
+				viewMatrixLeft.m30 = viewLeft[3];
+				viewMatrixLeft.m31 = viewLeft[7];
+				viewMatrixLeft.m32 = viewLeft[11];
+				viewMatrixLeft.m33 = viewLeft[15];
+
+				firstCamera.worldToCameraMatrix = viewMatrixLeft;
+			}
+		}
     }
 
     void SetCameraTexture(string value)

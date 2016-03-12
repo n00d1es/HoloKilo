@@ -15,6 +15,8 @@ import net.kajos.holokilo.Util.LowPassFilter;
  * Created by kajos on 7-12-15.
  */
 public class AccCompassTracker extends Tracker implements SensorEventListener {
+    // Tracker that uses the accelerometer and compass only.
+    // Not very good results.
 
     /**
      * Compass values

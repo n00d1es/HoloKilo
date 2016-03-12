@@ -27,6 +27,9 @@ public class GLSurfaceView extends android.opengl.GLSurfaceView
 
         setEGLContextClientVersion(2);
 
+        // Initialize rotational tracker
+        // Dummytracker for stationary use
+        // Use Cardboardtracker for sensor fusion
         Tracker tracker = Config.DUMMY_TRACKER ? new DummyTracker() : GoogleHeadTracker.createFromContext(context);
 
         renderer = new GLRenderer(this, tracker);

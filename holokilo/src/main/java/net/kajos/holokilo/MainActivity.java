@@ -13,13 +13,15 @@ public class MainActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Wakelock
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        // remove title
+        // Fullscreen
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
+        // Set brightness to max
         if (Config.MAX_BRIGHT) {
             WindowManager.LayoutParams layout = getWindow().getAttributes();
             layout.screenBrightness = 1F;
