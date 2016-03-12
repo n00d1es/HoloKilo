@@ -36,3 +36,8 @@ Distance calculation happens by the blob size (roughly put). It might be better 
 Calculating distance by blob size has some disadvantages due to camera movement causing smear of the blobs. I try to counter this with the gyroscope (more movement is smaller actual blob), but it needs some tweaking.
 
 Currently 3 blobs are tracked (green for camera viewmatrix, red and blue extra for example for controllers), but it is very easy to change this. The blobfinder doesn't need to perform much more work for more blobs.
+
+##Example
+https://github.com/Kjos/HoloKilo/raw/master/holokilo-debug.apk
+
+It tracks a circular green (retro) reflective marker. I use a marker of about 10cm in diameter.
